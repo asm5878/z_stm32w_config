@@ -43,9 +43,7 @@ For example, PyOCD maps `STM32WB09KEVx` to target `stm32wb09kevx`; the
 `Keil.STM32WB0x_DFP` pack is needed if that target is not available locally.
 Use the MCU-specific pack pattern appropriate for other target devices.
 
-### 1.3 West debug, attach, and GDB commands
-
-#### 1.3.1 GDB environment and initialization
+### 1.3 GDB environment and initialization
 
 Run these commands from the Zephyr workspace root in PowerShell. Set `HOME` so
 Windows GDB can find the user's `.gdbinit` file:
@@ -65,6 +63,8 @@ set pagination off
 For both GUI and command-line sessions, make sure `HOME` is set in the Windows
 user environment before starting VS Code, and in any PowerShell session used
 for West.
+
+### 1.4 West debug, attach, and GDB commands
 
 West `debug` uses the selected runner to load the image onto the target, reset
 the SoC, and start an interactive GDB session. West `attach` connects GDB to
@@ -212,11 +212,11 @@ five commits to your Zephyr checkout:
 ```sh
 git remote add stm32wbax-pr https://github.com/asm5878/zephyr.git
 git fetch stm32wbax-pr stm32wbax_stdby_debug
-git cherry-pick fa9cd4be40e5e0951a85da2df497e7fd428c7d58
-git cherry-pick 9136126531311f1ab97592ce4af2d7d4a3f77971
-git cherry-pick e4a2710964f08d4a95cfec186c958bdad0d788b4
-git cherry-pick 4c0aea4e67039260b672dee350b61552c0605e38
-git cherry-pick d2842f2817ab2a308bf34b83bf1d5bd92357099d
+git cherry-pick 315e2b7496cea0c80857bbaf846d5d1aaa265f4b
+git cherry-pick 643d189f83a774539b2877a73cb2e4801fb9866a
+git cherry-pick 8fa50c36bf49058171e7f0d08554d37bed25b8a5
+git cherry-pick f9c1368f83b25721103b33652189e2955ebd7765
+git cherry-pick 739b35b93561e129b1c1dcbcee00412d6451a05a
 ```
 
 Run the cherry-pick commands in order. If you already added the remote, skip
