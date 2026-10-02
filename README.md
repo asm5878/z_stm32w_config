@@ -45,6 +45,8 @@ Use the MCU-specific pack pattern appropriate for other target devices.
 
 ### 1.3 West debug, attach, and GDB commands
 
+#### 1.3.1 GDB environment and initialization
+
 Run these commands from the Zephyr workspace root in PowerShell. Set `HOME` so
 Windows GDB can find the user's `.gdbinit` file:
 
