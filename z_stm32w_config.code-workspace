@@ -1,0 +1,482 @@
+{
+	"folders": [
+		{
+			"name": "z_stm32w_config",
+			"path": "."
+		},
+		{
+			"name": "zephyrproject",
+			"path": ".."
+		}
+	],
+	"settings": {
+		// Hush CMake
+		"cmake.configureOnOpen": false,
+
+		// IntelliSense
+		"C_Cpp.default.compilerPath": "${workspaceFolder:z_stm32w_config}/../../zephyr-sdk-1.0.1/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc.exe",
+
+		// File Associations
+		"files.associations": {
+			"**/.config": "properties"
+		},
+		"z_stm32w_config.buildDirectory": "build",
+		"terminal.integrated.stickyScroll.enabled": false,
+		"cortex-debug.variableUseNaturalFormat": false
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Prepare SVD for Cortex-Debug",
+				"type": "process",
+				"command": "python",
+				"windows": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/Scripts/python.exe"
+				},
+				"linux": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/python"
+				},
+				"osx": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/python"
+				},
+				"args": [
+					"${workspaceFolder:z_stm32w_config}/scripts/select_svd.py",
+					"--build-dir",
+					"${input:build_dir}",
+					"--output",
+					"${workspaceFolder:z_stm32w_config}/.generated/selected.svd",
+					"--selected-build-dir-file",
+					"${workspaceFolder:z_stm32w_config}/.generated/selected-build-directory.txt",
+					"--elf-output",
+					"${workspaceFolder:z_stm32w_config}/.generated/selected.elf"
+				],
+				"problemMatcher": []
+			},
+			{
+				"label": "West Build",
+				"type": "process",
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"command": "${workspaceFolder:zephyrproject}/.venv/Scripts/west.exe",
+				"linux": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/west"
+				},
+				"osx": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/west"
+				},
+				"args": [
+					"build",
+					"-p",
+					"auto",
+					"-d",
+					"${input:build_dir}",
+					"-b",
+					"${input:board}",
+					"${input:app_dir}",
+					"--",
+					"-DCONFIG_DEBUG_THREAD_INFO=y"
+				],
+				"problemMatcher": [
+					"$gcc"
+				],
+			},
+			{
+				"label": "West Configurable Build",
+				"type": "process",
+				"group": {
+					"kind": "build",
+				},
+				"command": "${workspaceFolder:zephyrproject}/.venv/Scripts/west.exe",
+				"linux": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/west"
+				},
+				"osx": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/west"
+				},
+				"args": [
+					"build",
+					"-p",
+					"${input:pristine}",
+					"-b",
+					"${input:board}",
+					"-d",
+					"${input:build_dir}",
+					"${input:app_dir}",
+					"--",
+					"-DCONFIG_DEBUG_THREAD_INFO=y"
+				],
+				"problemMatcher": [
+					"$gcc"
+				]
+			},
+			{
+				"label": "West Flash",
+				"type": "process",
+				"command": "${workspaceFolder:zephyrproject}/.venv/Scripts/west.exe",
+				"linux": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/west"
+				},
+				"osx": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/west"
+				},
+				"args": [
+					"flash",
+					"-d",
+					"${input:build_dir}"
+				],
+				"problemMatcher": [
+					"$gcc"
+				]
+			},
+			{
+				"label": "West OpenOCD GDB Server",
+				"type": "process",
+				"command": "${workspaceFolder:zephyrproject}/.venv/Scripts/python.exe",
+				"linux": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/python"
+				},
+				"osx": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/python"
+				},
+				"args": [
+					"${workspaceFolder:z_stm32w_config}/scripts/run_west_debugserver.py",
+					"--build-dir-file",
+					"${workspaceFolder:z_stm32w_config}/.generated/selected-build-directory.txt",
+					"--pid-file",
+					"${workspaceFolder:z_stm32w_config}/.generated/openocd-server.json",
+					"--",
+					"debugserver"
+				],
+				"dependsOn": ["Prepare SVD for Cortex-Debug"],
+				"dependsOrder": "sequence",
+				"isBackground": true,
+				"presentation": {
+					"panel": "dedicated",
+					"close": true
+				},
+				"problemMatcher": {
+					"owner": "west-openocd",
+					"fileLocation": "absolute",
+					"pattern": {
+						"regexp": "^(__WEST_OPENOCD_NO_DIAGNOSTIC__)$",
+						"message": 1
+					},
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": ".+",
+						"endsPattern": ".*Listening on port 3333 for gdb connections.*"
+					}
+				}
+			},
+			{
+				"label": "West OpenOCD GDB Server for Attach",
+				"type": "process",
+				"command": "${workspaceFolder:zephyrproject}/.venv/Scripts/python.exe",
+				"linux": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/python"
+				},
+				"osx": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/python"
+				},
+				"args": [
+					"${workspaceFolder:z_stm32w_config}/scripts/run_west_debugserver.py",
+					"--build-dir-file",
+					"${workspaceFolder:z_stm32w_config}/.generated/selected-build-directory.txt",
+					"--pid-file",
+					"${workspaceFolder:z_stm32w_config}/.generated/openocd-server.json",
+					"--",
+					"debugserver",
+					"--cmd-pre-init",
+					"set NO_RESET_ATTACH 1",
+					"--cmd-reset-halt",
+					"halt"
+				],
+				"dependsOn": ["Prepare SVD for Cortex-Debug"],
+				"dependsOrder": "sequence",
+				"isBackground": true,
+				"presentation": {
+					"panel": "dedicated",
+					"close": true
+				},
+				"problemMatcher": {
+					"owner": "west-openocd",
+					"fileLocation": "absolute",
+					"pattern": {
+						"regexp": "^(__WEST_OPENOCD_NO_DIAGNOSTIC__)$",
+						"message": 1
+					},
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": ".+",
+						"endsPattern": ".*Listening on port 3333 for gdb connections.*"
+					}
+				}
+			},
+			{
+				"label": "Stop OpenOCD GDB Server",
+				"type": "process",
+				"command": "${workspaceFolder:zephyrproject}/.venv/Scripts/python.exe",
+				"linux": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/python"
+				},
+				"osx": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/python"
+				},
+				"args": [
+					"${workspaceFolder:z_stm32w_config}/scripts/stop_openocd_debugserver.py",
+					"--pid-file",
+					"${workspaceFolder:z_stm32w_config}/.generated/openocd-server.json"
+				],
+				"presentation": {
+					"panel": "dedicated",
+					"close": true
+				},
+				"problemMatcher": []
+			},
+			{
+				"label": "Start PyOCD GDB Server",
+				"type": "process",
+				"command": "${workspaceFolder:zephyrproject}/.venv/Scripts/python.exe",
+				"linux": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/python"
+				},
+				"osx": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/python"
+				},
+				"args": [
+					"${workspaceFolder:z_stm32w_config}/scripts/run_pyocd.py",
+					"--build-dir-file",
+					"${workspaceFolder:z_stm32w_config}/.generated/selected-build-directory.txt",
+					"--",
+					"gdbserver",
+					"--port",
+					"3333",
+					"--telnet-port",
+					"4444"
+				],
+				"dependsOn": ["Prepare SVD for Cortex-Debug"],
+				"dependsOrder": "sequence",
+				"isBackground": true,
+				"problemMatcher": {
+					"owner": "pyocd",
+					"fileLocation": "absolute",
+					"pattern": {
+						"regexp": "^(__PYOCD_NO_DIAGNOSTIC__)$",
+						"message": 1
+					},
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": ".+",
+						"endsPattern": ".*GDB server listening on port 3333.*"
+					}
+				}
+			},
+			{
+				"label": "Start PyOCD GDB Server under reset",
+				"type": "process",
+				"command": "${workspaceFolder:zephyrproject}/.venv/Scripts/python.exe",
+				"linux": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/python"
+				},
+				"osx": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/python"
+				},
+				"args": [
+					"${workspaceFolder:z_stm32w_config}/scripts/run_pyocd.py",
+					"--build-dir-file",
+					"${workspaceFolder:z_stm32w_config}/.generated/selected-build-directory.txt",
+					"--",
+					"gdbserver",
+					"--port",
+					"3333",
+					"--telnet-port",
+					"4444",
+					"--frequency",
+					"1000000",
+					"-M=under-reset",
+					"--script=${workspaceFolder:z_stm32w_config}/scripts/pyocd_debug_user.py"
+				],
+				"dependsOn": ["Prepare SVD for Cortex-Debug"],
+				"dependsOrder": "sequence",
+				"isBackground": true,
+				"problemMatcher": {
+					"owner": "pyocd",
+					"fileLocation": "absolute",
+					"pattern": {
+						"regexp": "^(__PYOCD_NO_DIAGNOSTIC__)$",
+						"message": 1
+					},
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": ".+",
+						"endsPattern": ".*GDB server listening on port 3333.*"
+					}
+				}
+			},
+			{
+				"label": "Start PyOCD GDB Server for attach",
+				"type": "process",
+				"command": "${workspaceFolder:zephyrproject}/.venv/Scripts/python.exe",
+				"linux": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/python"
+				},
+				"osx": {
+					"command": "${workspaceFolder:zephyrproject}/.venv/bin/python"
+				},
+				"args": [
+					"${workspaceFolder:z_stm32w_config}/scripts/run_pyocd.py",
+					"--build-dir-file",
+					"${workspaceFolder:z_stm32w_config}/.generated/selected-build-directory.txt",
+					"--",
+					"gdbserver",
+					"--port",
+					"3333",
+					"--telnet-port",
+					"4444",
+					"--frequency",
+					"1000000",
+					"-M=under-reset",
+					"--script=${workspaceFolder:zephyrproject}/zephyr/boards/st/nucleo_wba65ri/support/pyocd_user.py",
+					"-M=attach"
+				],
+				"dependsOn": ["Prepare SVD for Cortex-Debug"],
+				"dependsOrder": "sequence",
+				"isBackground": true,
+				"problemMatcher": {
+					"owner": "pyocd",
+					"fileLocation": "absolute",
+					"pattern": {
+						"regexp": "^(__PYOCD_NO_DIAGNOSTIC__)$",
+						"message": 1
+					},
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": ".+",
+						"endsPattern": ".*GDB server listening on port 3333.*"
+					}
+				}
+			},
+		],
+		"inputs": [
+			{
+				"id": "build_dir",
+				"type": "promptString",
+				"default": "${workspaceFolder:zephyrproject}/build",
+				"description": "Build directory path"
+			},
+			{
+				"id": "board",
+				"type": "promptString",
+				"default": "nucleo_wb09ke",
+				"description": "See https://docs.zephyrproject.org/latest/boards/index.html"
+			},
+			{
+				"id": "pristine",
+				"type": "pickString",
+				"description": "Choose when to run a pristine build",
+				"default": "auto",
+				"options": [
+					"auto",
+					"always",
+					"never"
+				]
+			},
+			{
+				"id": "app_dir",
+				"type": "promptString",
+				"description": "Relative path to the app folder",
+				"default": "${workspaceFolder:zephyrproject}/zephyr/samples/hello_world",
+			},
+		]
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Debug (PyOCD)",
+				"type": "cortex-debug",
+				"request": "launch",
+				"cwd": "${workspaceFolder:zephyrproject}",
+				"executable": "${workspaceFolder:z_stm32w_config}/.generated/selected.elf",
+				"breakAfterReset": true,
+				"servertype": "external",
+				"gdbTarget": "localhost:3333",
+				"overrideLaunchCommands": [
+					"monitor reset halt"
+				],
+				"gdbPath": "${workspaceFolder:z_stm32w_config}/../../zephyr-sdk-1.0.1/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb-py.exe",
+				"svdPath": "${workspaceFolder:z_stm32w_config}/.generated/selected.svd",
+				"showDevDebugOutput": "raw",
+				"preLaunchTask": "Start PyOCD GDB Server under reset"
+			},
+			{
+				"name": "Debug (OpenOCD)",
+				"cwd": "${workspaceFolder:zephyrproject}",
+				"executable": "${workspaceFolder:z_stm32w_config}/.generated/selected.elf",
+				"request": "launch",
+				"type": "cortex-debug",
+				"breakAfterReset": true,
+				"overrideLaunchCommands": [
+					"load"
+				],
+				"rtos": "Zephyr",
+				"svdPath": "${workspaceFolder:z_stm32w_config}/.generated/selected.svd",
+				"servertype": "external",
+				"gdbTarget": "localhost:3333",
+				"gdbPath": "${workspaceFolder:z_stm32w_config}/../../zephyr-sdk-1.0.1/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb-py.exe",
+				"showDevDebugOutput": "raw",
+				"preLaunchTask": "West OpenOCD GDB Server",
+				"postDebugTask": "Stop OpenOCD GDB Server"
+			},
+			{
+				"name": "Attach (PyOCD)",
+				"cwd": "${workspaceFolder:zephyrproject}",
+				"executable": "${workspaceFolder:z_stm32w_config}/.generated/selected.elf",
+				"request": "attach",
+				"type": "cortex-debug",
+				"overrideAttachCommands": [],
+				"svdPath": "${workspaceFolder:z_stm32w_config}/.generated/selected.svd",
+				"servertype": "external",
+				"gdbTarget": "localhost:3333",
+				"gdbPath": "${workspaceFolder:z_stm32w_config}/../../zephyr-sdk-1.0.1/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb-py.exe",
+				"preLaunchTask": "Start PyOCD GDB Server for attach"
+			},
+			{
+				"name": "Attach (OpenOCD)",
+				"cwd": "${workspaceFolder:zephyrproject}",
+				"executable": "${workspaceFolder:z_stm32w_config}/.generated/selected.elf",
+				"request": "attach",
+				"type": "cortex-debug",
+				"overrideAttachCommands": [],
+				"rtos": "Zephyr",
+				"svdPath": "${workspaceFolder:z_stm32w_config}/.generated/selected.svd",
+				"servertype": "external",
+				"gdbTarget": "localhost:3333",
+				"gdbPath": "${workspaceFolder:z_stm32w_config}/../../zephyr-sdk-1.0.1/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb-py.exe",
+				"showDevDebugOutput": "raw",
+				"preLaunchTask": "West OpenOCD GDB Server for Attach",
+				"postDebugTask": "Stop OpenOCD GDB Server"
+			},
+		],
+		"inputs": [
+			{
+				"id": "board",
+				"type": "promptString",
+				"default": "nucleo_wb09ke",
+				"description": "Enter the board's name"
+			}
+		]
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.cpptools-extension-pack",
+			"ms-python.python",
+			"ms-vscode.vscode-embedded-tools",
+			"ms-vscode.vscode-serial-monitor",
+			"marus25.cortex-debug"
+		]
+	}
+}
