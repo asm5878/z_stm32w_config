@@ -134,17 +134,17 @@ The West runner workflows depend on external STM32 Wireless changes to Zephyr
 for reliable `west debug` and `west attach`, particularly the OpenOCD
 non-reset attach path. These changes are not supplied by cloning
 `z_stm32w_config`; they are proposed in the currently unmerged
-[Zephyr pull request #121062](https://github.com/zephyrproject-rtos/zephyr/pull/121062).Until it is merged, retrieve the PR branch from my fork and apply its
+[Zephyr pull request #121062](https://github.com/zephyrproject-rtos/zephyr/pull/121062). Until it is merged, retrieve the PR branch from my fork and apply its
 five commits to your Zephyr checkout:
 
 ```sh
 git remote add asm5878 https://github.com/asm5878/zephyr.git
 git fetch asm5878 stm32wbax_stdby_debug
-git cherry-pick 315e2b7496cea0c80857bbaf846d5d1aaa265f4b
-git cherry-pick 643d189f83a774539b2877a73cb2e4801fb9866a
-git cherry-pick 8fa50c36bf49058171e7f0d08554d37bed25b8a5
-git cherry-pick f9c1368f83b25721103b33652189e2955ebd7765
-git cherry-pick 739b35b93561e129b1c1dcbcee00412d6451a05a
+git cherry-pick b358159d6197074b5ca39321af828b6d1c7128de
+git cherry-pick 5bfaa700ab2444820a0485b252cfbbc4cd8ab08c
+git cherry-pick eca63c7691f5e72371853cbc71426beb9ad1609b
+git cherry-pick 8e19a7bc22e1b032f8696b35747742fa055fc2bc
+git cherry-pick 0b033a549554dbf565fe70a59f88abd6a4be21f2
 ```
 
 Run the cherry-pick commands in order. If you already added my remote, skip
