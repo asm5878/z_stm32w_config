@@ -72,7 +72,7 @@ flowchart TB
 ### 1.2 Where the tools come from
 
 This setup was tested with Zephyr SDK host tools version `1.0.1` and PyOCD
-version `0.45.1`.
+version `0.46.0`.
 
 - **GDB and OpenOCD:** supplied as native host tools by the Zephyr SDK. OpenOCD
   is under the SDK's `hosttools/openocd` directory; its executable and scripts
