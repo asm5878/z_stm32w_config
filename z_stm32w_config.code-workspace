@@ -22,6 +22,7 @@
 		},
 		"z_stm32w_config.buildDirectory": "build",
 		"terminal.integrated.stickyScroll.enabled": false,
+		"cortex-debug.gdbPath": "${workspaceFolder:z_stm32w_config}/../../zephyr-sdk-1.0.1/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
 		"cortex-debug.variableUseNaturalFormat": false
 	},
 	"tasks": {
@@ -349,7 +350,7 @@
 					"owner": "pyocd",
 					"fileLocation": "absolute",
 					"pattern": {
-						"regexp": "^(__PYOCD_NO_DIAGNOSTIC__)$",
+						"regexp": "^(.*(?:ERROR|CRITICAL|Traceback).*)$",
 						"message": 1
 					},
 					"background": {
@@ -405,9 +406,9 @@
 				"servertype": "external",
 				"gdbTarget": "localhost:3333",
 				"overrideLaunchCommands": [
-					"monitor reset halt"
+					"monitor reset halt",
+					"set mem inaccessible-by-default off"
 				],
-				"gdbPath": "${workspaceFolder:z_stm32w_config}/../../zephyr-sdk-1.0.1/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb-py.exe",
 				"svdPath": "${workspaceFolder:z_stm32w_config}/.generated/selected.svd",
 				"showDevDebugOutput": "raw",
 				"preLaunchTask": "Start PyOCD GDB Server under reset"
@@ -426,7 +427,6 @@
 				"svdPath": "${workspaceFolder:z_stm32w_config}/.generated/selected.svd",
 				"servertype": "external",
 				"gdbTarget": "localhost:3333",
-				"gdbPath": "${workspaceFolder:z_stm32w_config}/../../zephyr-sdk-1.0.1/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb-py.exe",
 				"showDevDebugOutput": "raw",
 				"preLaunchTask": "West OpenOCD GDB Server",
 				"postDebugTask": "Stop OpenOCD GDB Server"
@@ -437,11 +437,12 @@
 				"executable": "${workspaceFolder:z_stm32w_config}/.generated/selected.elf",
 				"request": "attach",
 				"type": "cortex-debug",
-				"overrideAttachCommands": [],
+				"postAttachCommands": [
+					"set mem inaccessible-by-default off"
+				],
 				"svdPath": "${workspaceFolder:z_stm32w_config}/.generated/selected.svd",
 				"servertype": "external",
 				"gdbTarget": "localhost:3333",
-				"gdbPath": "${workspaceFolder:z_stm32w_config}/../../zephyr-sdk-1.0.1/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb-py.exe",
 				"preLaunchTask": "Start PyOCD GDB Server for attach"
 			},
 			{
@@ -455,7 +456,6 @@
 				"svdPath": "${workspaceFolder:z_stm32w_config}/.generated/selected.svd",
 				"servertype": "external",
 				"gdbTarget": "localhost:3333",
-				"gdbPath": "${workspaceFolder:z_stm32w_config}/../../zephyr-sdk-1.0.1/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb-py.exe",
 				"showDevDebugOutput": "raw",
 				"preLaunchTask": "West OpenOCD GDB Server for Attach",
 				"postDebugTask": "Stop OpenOCD GDB Server"
