@@ -149,7 +149,11 @@
 					"--pid-file",
 					"${workspaceFolder:z_stm32w_config}/.generated/openocd-server.json",
 					"--",
-					"debugserver"
+					"debugserver",
+					"-r",
+					"openocd",
+					"--cmd-reset-halt",
+					"halt"
 				],
 				"dependsOn": ["Prepare SVD for Cortex-Debug"],
 				"dependsOrder": "sequence",
@@ -190,6 +194,8 @@
 					"${workspaceFolder:z_stm32w_config}/.generated/openocd-server.json",
 					"--",
 					"debugserver",
+					"-r",
+					"openocd",
 					"--cmd-pre-init",
 					"set NO_RESET_ATTACH 1",
 					"--cmd-reset-halt",
@@ -297,8 +303,7 @@
 					"4444",
 					"--frequency",
 					"1000000",
-					"-M=under-reset",
-					"--script=${workspaceFolder:z_stm32w_config}/scripts/pyocd_debug_user.py"
+					"-M=under-reset"
 				],
 				"dependsOn": ["Prepare SVD for Cortex-Debug"],
 				"dependsOrder": "sequence",
@@ -339,9 +344,7 @@
 					"4444",
 					"--frequency",
 					"1000000",
-					"-M=under-reset",
-					"--script=${workspaceFolder:zephyrproject}/zephyr/boards/st/nucleo_wba65ri/support/pyocd_user.py",
-					"-M=attach"
+					"-M=halt"
 				],
 				"dependsOn": ["Prepare SVD for Cortex-Debug"],
 				"dependsOrder": "sequence",
@@ -421,7 +424,8 @@
 				"type": "cortex-debug",
 				"breakAfterReset": true,
 				"overrideLaunchCommands": [
-					"load"
+					"load",
+					"set mem inaccessible-by-default off"
 				],
 				"rtos": "Zephyr",
 				"svdPath": "${workspaceFolder:z_stm32w_config}/.generated/selected.svd",
@@ -451,6 +455,9 @@
 				"executable": "${workspaceFolder:z_stm32w_config}/.generated/selected.elf",
 				"request": "attach",
 				"type": "cortex-debug",
+				"postAttachCommands": [
+					"set mem inaccessible-by-default off"
+				],
 				"overrideAttachCommands": [],
 				"rtos": "Zephyr",
 				"svdPath": "${workspaceFolder:z_stm32w_config}/.generated/selected.svd",

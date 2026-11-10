@@ -140,11 +140,11 @@ five commits to your Zephyr checkout:
 ```sh
 git remote add asm5878 https://github.com/asm5878/zephyr.git
 git fetch asm5878 stm32wbax_stdby_debug
-git cherry-pick b358159d6197074b5ca39321af828b6d1c7128de
-git cherry-pick 5bfaa700ab2444820a0485b252cfbbc4cd8ab08c
-git cherry-pick eca63c7691f5e72371853cbc71426beb9ad1609b
-git cherry-pick 8e19a7bc22e1b032f8696b35747742fa055fc2bc
-git cherry-pick 0b033a549554dbf565fe70a59f88abd6a4be21f2
+git cherry-pick 3b2845118450a9963eb4ac137ab47aebb7eb0deb
+git cherry-pick 659b8caa2f12bf592e821c761782b52e5a2ad583
+git cherry-pick 3f77519215eecf89f97f23b9a22d85ad6195f66b
+git cherry-pick 802bb883e217334f341382bf21e8c39d05324d98
+git cherry-pick 70fb91829dc596de502a5c692b026c36bca8dfb1
 ```
 
 Run the cherry-pick commands in order. If you already added my remote, skip
@@ -197,6 +197,9 @@ west debug -r pyocd --tool-opt=-M=under-reset
 west attach --cmd-pre-init "set NO_RESET_ATTACH 1"
 west attach -r pyocd
 ```
+
+On `nucleo_wba65ri` and `nucleo_wba25ce1`, PyOCD debugging skips image
+loading by default. Flash the desired firmware before starting `west debug -r pyocd`.
 
 West starts GDB for the selected runner. At the GDB prompt, the most useful
 commands are:
@@ -277,9 +280,9 @@ The current profiles are:
 
 | Profile | Behavior |
 | --- | --- |
-| `Debug (PyOCD)` | Starts PyOCD in `under-reset` mode at 1 MHz, runs the WBA65RI PyOCD hook, connects GDB, then sends `monitor reset halt`. It does not load the ELF; the target must already run the desired firmware. |
+| `Debug (PyOCD)` | Starts PyOCD in `under-reset` mode at 1 MHz, connects GDB, then sends `monitor reset halt`. It does not load the ELF; the target must already run the desired firmware. |
 | `Debug (OpenOCD)` | Starts West's OpenOCD debug server and sends GDB `load` to program the selected ELF. |
-| `Attach (PyOCD)` | Starts PyOCD in `attach` mode and connects GDB without loading the ELF. The current WBA65RI hook calls `board.target.halt()` on connection, so the target is halted. |
+| `Attach (PyOCD)` | Starts PyOCD in `halt` mode, halting the target without reset, and connects GDB without loading the ELF. |
 | `Attach (OpenOCD)` | Starts West's OpenOCD debug server with `NO_RESET_ATTACH` and halt commands; GDB attaches without loading the ELF. |
 
 PyOCD tasks automatically select the target from the board recorded in the
@@ -342,7 +345,7 @@ properly tracking standby entry and resume.
 | Step | Action |
 | --- | --- |
 | Prepare | Apply the Zephyr changes from section 1.4 where required, build the application with the debug options in section 1.5, and confirm the selected board and runner. |
-| Launch a debug session | Run `west debug` to use the default `build` directory and OpenOCD runner. Add `-r pyocd --tool-opt=-M=under-reset` to select PyOCD; the current runner uses `--no-load`, so firmware must already be programmed. Use `-d <build-dir>` for a different build directory. |
+| Launch a debug session | Run `west debug` to use the default `build` directory and OpenOCD runner. Add `-r pyocd --tool-opt=-M=under-reset` to select PyOCD. On `nucleo_wba65ri` and `nucleo_wba25ce1`, PyOCD skips image loading by default, so flash the desired firmware first. Use `-d <build-dir>` for a different build directory. |
 | Attach to a running target | Run `west attach --cmd-pre-init "set NO_RESET_ATTACH 1"` with the default OpenOCD runner, or `west attach -r pyocd` to select PyOCD. Use `-d <build-dir>` for a different build directory. |
 | Debug | Use GDB commands such as `break`, `continue`, `next`, `bt`, and `info threads`; see section 1.6. |
 
