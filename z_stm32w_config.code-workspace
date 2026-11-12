@@ -282,7 +282,7 @@
 				}
 			},
 			{
-				"label": "Start PyOCD GDB Server under reset",
+				"label": "Start PyOCD GDB Server for debug",
 				"type": "process",
 				"command": "${workspaceFolder:zephyrproject}/.venv/Scripts/python.exe",
 				"linux": {
@@ -295,6 +295,8 @@
 					"${workspaceFolder:z_stm32w_config}/scripts/run_pyocd.py",
 					"--build-dir-file",
 					"${workspaceFolder:z_stm32w_config}/.generated/selected-build-directory.txt",
+					"--launch-commands-output",
+					"${workspaceFolder:z_stm32w_config}/.generated/pyocd-launch.gdb",
 					"--",
 					"gdbserver",
 					"--port",
@@ -302,8 +304,7 @@
 					"--telnet-port",
 					"4444",
 					"--frequency",
-					"1000000",
-					"-M=under-reset"
+					"1000000"
 				],
 				"dependsOn": ["Prepare SVD for Cortex-Debug"],
 				"dependsOrder": "sequence",
@@ -409,12 +410,12 @@
 				"servertype": "external",
 				"gdbTarget": "localhost:3333",
 				"overrideLaunchCommands": [
-					"monitor reset halt",
+					"source ${workspaceFolder:z_stm32w_config}/.generated/pyocd-launch.gdb",
 					"set mem inaccessible-by-default off"
 				],
 				"svdPath": "${workspaceFolder:z_stm32w_config}/.generated/selected.svd",
 				"showDevDebugOutput": "raw",
-				"preLaunchTask": "Start PyOCD GDB Server under reset"
+				"preLaunchTask": "Start PyOCD GDB Server for debug"
 			},
 			{
 				"name": "Debug (OpenOCD)",

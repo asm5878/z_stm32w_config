@@ -10,6 +10,10 @@ def main():
     parser = argparse.ArgumentParser(description="Run PyOCD for the board in a Zephyr build.")
     parser.add_argument("--build-dir-file", type=Path, required=True)
     parser.add_argument("--pyocd", type=Path)
+    parser.add_argument(
+        "--launch-commands-output", type=Path,
+        help="Generate board-specific GDB launch commands and select the debug connection mode.",
+    )
     parser.add_argument("pyocd_args", nargs=argparse.REMAINDER)
     args = parser.parse_args()
 
@@ -43,6 +47,20 @@ def main():
         pyocd = pyocd_path.expanduser().resolve()
         if not pyocd.is_file():
             raise ValueError(f"PyOCD executable not found: {pyocd}")
+
+        if args.launch_commands_output is not None:
+            if board == "nucleo_wb09ke":
+                connect_mode = "halt"
+                launch_commands = ["monitor halt", "monitor reset", "load"]
+            else:
+                connect_mode = "under-reset"
+                launch_commands = ["monitor reset halt"]
+
+            args.launch_commands_output.parent.mkdir(parents=True, exist_ok=True)
+            args.launch_commands_output.write_text(
+                "\n".join(launch_commands) + "\n", encoding="utf-8"
+            )
+            pyocd_args = [*pyocd_args, f"-M={connect_mode}"]
 
         command = [str(pyocd), *pyocd_args, "--target", board_config["pyocd_target"]]
         print(f"Using PyOCD target {board_config['pyocd_target']} for {board}", flush=True)
