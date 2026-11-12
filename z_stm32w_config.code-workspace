@@ -404,13 +404,13 @@
 				"name": "Debug (PyOCD)",
 				"type": "cortex-debug",
 				"request": "launch",
-				"cwd": "${workspaceFolder:zephyrproject}",
+				"cwd": "${workspaceFolder:z_stm32w_config}",
 				"executable": "${workspaceFolder:z_stm32w_config}/.generated/selected.elf",
 				"breakAfterReset": true,
 				"servertype": "external",
 				"gdbTarget": "localhost:3333",
 				"overrideLaunchCommands": [
-					"source ${workspaceFolder:z_stm32w_config}/.generated/pyocd-launch.gdb",
+					"source .generated/pyocd-launch.gdb",
 					"set mem inaccessible-by-default off"
 				],
 				"svdPath": "${workspaceFolder:z_stm32w_config}/.generated/selected.svd",
