@@ -280,7 +280,7 @@ The current profiles are:
 
 | Profile | Behavior |
 | --- | --- |
-| `Debug (PyOCD)` | Selects the debug sequence from the build's board. WB09 connects in `halt` mode, then sends `monitor halt`, `monitor reset`, and `load`. WBA55, WBA65, and WBA25 connect `under-reset` at 1 MHz, then send `monitor reset halt` without loading the ELF; their desired firmware must already be programmed. |
+| `Debug (PyOCD)` | Selects the debug sequence from the build's board. WB09 connects in `halt` mode, then sends `monitor halt`, `monitor reset`, and `load`. WBA55, WBA65, and WBA25 connect `under-reset` at 1 MHz using their board's guarded PyOCD hook, then send `monitor reset halt` without loading the ELF; their desired firmware must already be programmed. |
 | `Debug (OpenOCD)` | Starts West's OpenOCD debug server and sends GDB `load` to program the selected ELF. |
 | `Attach (PyOCD)` | Starts PyOCD in `halt` mode, halting the target without reset, and connects GDB without loading the ELF. |
 | `Attach (OpenOCD)` | Starts West's OpenOCD debug server with `NO_RESET_ATTACH` and halt commands; GDB attaches without loading the ELF. |
@@ -302,11 +302,13 @@ debug session ends, including **Disconnect and Suspend**. PyOCD's background
 task remains active until stopped.
 
 The `West Build`, `West Configurable Build`, and `West Flash` tasks prompt for
-the build directory, defaulting to `${workspaceFolder:zephyrproject}/build`.
-Each Cortex-Debug launch or attach profile also prompts for the build directory
-in VS Code Quick Input before starting its debug server. The prompt defaults to
-the `z_stm32w_config.buildDirectory` setting, currently `build`. The selected
-directory is used to prepare the matching ELF and SVD and to start the server.
+the build directory, defaulting to `build`. All tasks run from the
+`zephyrproject` folder, so relative build and application paths are resolved
+from there. Absolute paths are also accepted. Enter a real path in the prompt,
+not a `${workspaceFolder:...}` expression; input values are not expanded recursively.
+Each Cortex-Debug launch or attach profile runs the preparation task before
+starting its debug server. The selected directory is used to prepare the
+matching ELF and SVD and to start the server.
 
 The `Prepare SVD for Cortex-Debug` task reads the board from the selected
 build's `CMakeCache.txt` and selects the matching file from the repository's
@@ -326,6 +328,12 @@ server tasks. All launch profiles use these generated files. The task
 reports an error if the board is unsupported, the ELF is missing, or its SVD
 file is missing. The bundled ST SVD files retain their Apache-2.0 headers; the
 repository license is included in [LICENSE](LICENSE).
+
+When available, the build's `compile_commands.json` is copied to
+`.generated/selected-compile-commands.json` for C/C++ IntelliSense. This keeps
+editor diagnostics aligned with the selected board and build configuration.
+A missing compilation database does not block debugging; any stale selected
+database is removed and a warning is printed.
 
 The launch profiles and IntelliSense compiler path use the SDK location
 described above. Confirm the SDK version and repository layout match those

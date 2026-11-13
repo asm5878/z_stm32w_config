@@ -15,6 +15,9 @@
 
 		// IntelliSense
 		"C_Cpp.default.compilerPath": "${workspaceFolder:z_stm32w_config}/../../zephyr-sdk-1.0.1/gnu/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc.exe",
+		"C_Cpp.default.compileCommands": [
+			"${workspaceFolder:z_stm32w_config}/.generated/selected-compile-commands.json"
+		],
 
 		// File Associations
 		"files.associations": {
@@ -27,6 +30,9 @@
 	},
 	"tasks": {
 		"version": "2.0.0",
+		"options": {
+			"cwd": "${workspaceFolder:zephyrproject}"
+		},
 		"tasks": [
 			{
 				"label": "Prepare SVD for Cortex-Debug",
@@ -50,7 +56,9 @@
 					"--selected-build-dir-file",
 					"${workspaceFolder:z_stm32w_config}/.generated/selected-build-directory.txt",
 					"--elf-output",
-					"${workspaceFolder:z_stm32w_config}/.generated/selected.elf"
+					"${workspaceFolder:z_stm32w_config}/.generated/selected.elf",
+					"--compile-commands-output",
+					"${workspaceFolder:z_stm32w_config}/.generated/selected-compile-commands.json"
 				],
 				"problemMatcher": []
 			},
@@ -369,7 +377,7 @@
 			{
 				"id": "build_dir",
 				"type": "promptString",
-				"default": "${workspaceFolder:zephyrproject}/build",
+				"default": "build",
 				"description": "Build directory path"
 			},
 			{
@@ -393,7 +401,7 @@
 				"id": "app_dir",
 				"type": "promptString",
 				"description": "Relative path to the app folder",
-				"default": "${workspaceFolder:zephyrproject}/zephyr/samples/hello_world",
+				"default": "zephyr/samples/hello_world",
 			},
 		]
 	},

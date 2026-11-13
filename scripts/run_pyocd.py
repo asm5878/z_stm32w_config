@@ -55,6 +55,13 @@ def main():
             else:
                 connect_mode = "under-reset"
                 launch_commands = ["monitor reset halt"]
+                user_script = (
+                    Path(__file__).resolve().parents[2]
+                    / "zephyr" / "boards" / "st" / board / "support" / "pyocd.py"
+                )
+                if not user_script.is_file():
+                    raise ValueError(f"PyOCD board hook not found: {user_script}")
+                pyocd_args = [*pyocd_args, f"--script={user_script.as_posix()}"]
 
             args.launch_commands_output.parent.mkdir(parents=True, exist_ok=True)
             args.launch_commands_output.write_text(

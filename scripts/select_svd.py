@@ -18,7 +18,9 @@ def copy_atomic(source, output):
             temporary_output.unlink()
 
 
-def select_svd(build_dir, output, selected_build_dir_file, elf_output):
+def select_svd(
+    build_dir, output, selected_build_dir_file, elf_output, compile_commands_output=None
+):
     board = read_board(build_dir)
     board_config = BOARD_CONFIG.get(board)
     if board_config is None:
@@ -36,6 +38,16 @@ def select_svd(build_dir, output, selected_build_dir_file, elf_output):
 
     copy_atomic(source, output)
     copy_atomic(elf_source, elf_output)
+    if compile_commands_output is not None:
+        compile_commands_source = build_dir / "compile_commands.json"
+        if compile_commands_source.is_file():
+            copy_atomic(compile_commands_source, compile_commands_output)
+        else:
+            compile_commands_output.unlink(missing_ok=True)
+            print(
+                f"Warning: compilation database not found: {compile_commands_source}",
+                file=sys.stderr,
+            )
     selected_build_dir_file.parent.mkdir(parents=True, exist_ok=True)
     selected_build_dir_file.write_text(f"{build_dir.resolve()}\n", encoding="utf-8")
 
@@ -48,6 +60,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--selected-build-dir-file", type=Path, required=True)
     parser.add_argument("--elf-output", type=Path, required=True)
+    parser.add_argument("--compile-commands-output", type=Path)
     args = parser.parse_args()
 
     try:
@@ -56,6 +69,7 @@ def main():
             args.output.resolve(),
             args.selected_build_dir_file.resolve(),
             args.elf_output.resolve(),
+            args.compile_commands_output.resolve() if args.compile_commands_output else None,
         )
     except (OSError, ValueError) as error:
         print(f"SVD selection failed: {error}", file=sys.stderr)
