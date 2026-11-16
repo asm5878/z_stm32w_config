@@ -49,18 +49,17 @@ def main():
             raise ValueError(f"PyOCD executable not found: {pyocd}")
 
         if args.launch_commands_output is not None:
+            launch_commands = ["monitor halt", "monitor reset", "load"]
             if board == "nucleo_wb09ke":
                 connect_mode = "halt"
-                launch_commands = ["monitor halt", "monitor reset", "load"]
             else:
                 connect_mode = "under-reset"
-                launch_commands = ["monitor reset halt"]
                 user_script = (
                     Path(__file__).resolve().parents[2]
-                    / "zephyr" / "boards" / "st" / board / "support" / "pyocd.py"
+                    / "zephyr" / "boards" / "st" / "common" / "scripts" / "pyocd.py"
                 )
                 if not user_script.is_file():
-                    raise ValueError(f"PyOCD board hook not found: {user_script}")
+                    raise ValueError(f"PyOCD shared hook not found: {user_script}")
                 pyocd_args = [*pyocd_args, f"--script={user_script.as_posix()}"]
 
             args.launch_commands_output.parent.mkdir(parents=True, exist_ok=True)
